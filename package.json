@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "lint": "next lint",
-    "scrape": "tsx scripts/scrape-hugos.ts"
+    "scrape": "tsx scripts/scrape-hugos.ts",
+    "enrich": "tsx scripts/enrich-hugos.ts",
+    "verify": "tsx scripts/verify.ts"
   },
   "dependencies": {
     "next": "15.1.6",

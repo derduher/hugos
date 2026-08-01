@@ -6,6 +6,33 @@ import { type Category, CATEGORIES, type Finalist } from "./types";
 
 export const ALL_FINALISTS = rawData as Finalist[];
 
+/** Sentinel used by the genre filter for works with no genre data. */
+export const NO_GENRE = "__none__";
+
+/**
+ * All genre values present in the seed, most frequent first, with counts.
+ * Frequency-sorted so the useful facets ("science fiction", "fantasy") lead
+ * and the ~50 single-work values remain reachable at the bottom.
+ */
+export function genreFacets(
+  finalists: Finalist[] = ALL_FINALISTS,
+): { genre: string; count: number }[] {
+  const counts = new Map<string, number>();
+  let none = 0;
+  for (const f of finalists) {
+    if (!f.genres || f.genres.length === 0) {
+      none++;
+      continue;
+    }
+    for (const g of f.genres) counts.set(g, (counts.get(g) ?? 0) + 1);
+  }
+  const list = [...counts.entries()]
+    .map(([genre, count]) => ({ genre, count }))
+    .sort((a, b) => b.count - a.count || a.genre.localeCompare(b.genre));
+  if (none > 0) list.push({ genre: NO_GENRE, count: none });
+  return list;
+}
+
 export interface CategoryGroup {
   category: Category;
   finalists: Finalist[]; // winners first

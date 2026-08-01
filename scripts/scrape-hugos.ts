@@ -106,6 +106,11 @@ function parseCategory(
 
   tables.each((_, table) => {
     let currentYear: number | null = null;
+    // Co-authors live in their own <tr>: the title/publisher cells carry
+    // rowspan=N and the following N-1 rows contain only an author cell. Track
+    // how many such continuation rows to fold into the finalist just created.
+    let pendingAuthorRows = 0;
+    let lastFinalist: Finalist | null = null;
 
     $(table)
       .find("tr")
@@ -121,6 +126,17 @@ function parseCategory(
         if (currentYear == null) return; // header / pre-table rows
 
         const tds = row.find("> td");
+
+        // Continuation row: a lone author cell belonging to the previous work.
+        if (tds.length === 1 && pendingAuthorRows > 0 && lastFinalist) {
+          const extra = extractAuthors($, tds.eq(0));
+          for (const name of extra) {
+            if (!lastFinalist.authors.includes(name)) lastFinalist.authors.push(name);
+          }
+          pendingAuthorRows--;
+          return;
+        }
+
         if (tds.length < 2) return; // not a data row
 
         const authorTd = tds.eq(0);
@@ -154,7 +170,7 @@ function parseCategory(
         while (seenIds.has(id)) id = `${base}-${n++}`;
         seenIds.add(id);
 
-        out.push({
+        const finalist: Finalist = {
           id,
           category,
           ceremonyYear,
@@ -163,7 +179,13 @@ function parseCategory(
           title,
           authors,
           outcome,
-        });
+        };
+        out.push(finalist);
+
+        // If the title cell spans N rows, the next N-1 rows carry co-authors.
+        const span = parseInt(titleTd.attr("rowspan") || "1", 10);
+        pendingAuthorRows = Number.isFinite(span) && span > 1 ? span - 1 : 0;
+        lastFinalist = finalist;
       });
   });
 

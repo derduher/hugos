@@ -55,3 +55,17 @@ and nothing else — no implementation details, no spec, no scratch notes.
 
 - **Reading record** — the user's per-work data: a status plus an optional date
   read. Stored only in the user's browser.
+
+- **Genre** — a descriptive label for a work (e.g. *space opera*, *cyberpunk*,
+  *fairy tale*), drawn from external reference data. A work may carry several,
+  ordered most-specific first; many carry none. Genre is reference data about
+  the work, never the user's opinion of it.
+
+- **Triage** — the mode for rapidly sorting a filtered queue of works, one at a
+  time, assigning each a status. Distinct from browsing the timeline, where
+  works are read in the context of their ceremony year.
+
+- **Pass** — in Triage, declining to decide about a work. It records no status,
+  so the work stays **Undecided** and returns in a later triage session. Pass is
+  *not* a status and must never be called "skip", which is reserved for the
+  **Not interested** status.

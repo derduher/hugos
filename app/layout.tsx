@@ -28,6 +28,12 @@ export default function RootLayout({
                 Timeline
               </Link>
               <Link
+                href="/triage"
+                className="hover:text-stone-900 dark:hover:text-stone-100"
+              >
+                Triage
+              </Link>
+              <Link
                 href="/stats"
                 className="hover:text-stone-900 dark:hover:text-stone-100"
               >

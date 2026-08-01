@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { ALL_FINALISTS, buildTimeline } from "@/lib/data";
 import { useReadingRecords } from "@/lib/storage";
 import {
+  applyFilters,
   defaultFilters,
   FilterBar,
   type Filters,
@@ -18,24 +19,10 @@ export function Timeline() {
 
   const active = filtersActive(filters);
 
-  const timeline = useMemo(() => {
-    const q = filters.query.trim().toLowerCase();
-    const filtered = ALL_FINALISTS.filter((f) => {
-      if (!filters.categories.has(f.category)) return false;
-      if (filters.winnersOnly && f.outcome !== "winner") return false;
-      if (
-        q &&
-        !f.title.toLowerCase().includes(q) &&
-        !f.authors.some((a) => a.toLowerCase().includes(q))
-      ) {
-        return false;
-      }
-      const state = records[f.id]?.status ?? "undecided";
-      if (!filters.statuses.has(state)) return false;
-      return true;
-    });
-    return buildTimeline(filtered);
-  }, [filters, records]);
+  const timeline = useMemo(
+    () => buildTimeline(applyFilters(ALL_FINALISTS, filters, records)),
+    [filters, records],
+  );
 
   return (
     <div className="space-y-4">

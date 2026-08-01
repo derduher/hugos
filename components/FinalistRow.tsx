@@ -1,4 +1,5 @@
 import type { Finalist } from "@/lib/types";
+import { GenreChips } from "./GenreChips";
 import { LookupLinks } from "./LookupLinks";
 import { StatusPicker } from "./StatusPicker";
 import { WinnerBadge } from "./WinnerBadge";
@@ -25,8 +26,14 @@ export function FinalistRow({ finalist }: { finalist: Finalist }) {
               {finalist.authors.join(", ")}
             </span>
           )}
+          <GenreChips genres={finalist.genres} />
           <LookupLinks finalist={finalist} />
         </div>
+        {finalist.description && (
+          <p className="mt-0.5 text-xs italic text-stone-400 dark:text-stone-500">
+            {finalist.description}
+          </p>
+        )}
       </div>
       <div className="shrink-0">
         <StatusPicker finalistId={finalist.id} />

@@ -7,7 +7,9 @@ import { isRead, type Status, VERDICT_GROUP_START } from "@/lib/types";
 // Classes are full static strings so Tailwind keeps them.
 const PILLS: { status: Status; short: string; full: string; active: string }[] = [
   { status: "want", short: "Want", full: "Want to read", active: "bg-want text-white border-want" },
-  { status: "skip", short: "Skip", full: "Not interested", active: "bg-skip text-white border-skip" },
+  // Never abbreviate this to "Skip" — in Triage that word means "pass, decide
+  // later", which is a different action entirely.
+  { status: "skip", short: "Not interested", full: "Not interested", active: "bg-skip text-white border-skip" },
   { status: "reading", short: "Reading", full: "Currently reading", active: "bg-reading text-white border-reading" },
   { status: "loved", short: "Loved", full: "Loved", active: "bg-loved text-white border-loved" },
   { status: "liked", short: "Liked", full: "Liked", active: "bg-liked text-white border-liked" },

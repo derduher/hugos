@@ -10,8 +10,11 @@ Novella, Best Novelette, Best Short Story** (regular and Retro Hugos).
 - **Mark a verdict** per work: Loved → Liked → Didn't like → DNF, plus Currently
   reading. "Read" counts finished works (Loved/Liked/Didn't like); DNF and
   Currently reading are excluded from progress.
-- **Stats**, winner highlighting, search, and filters (category / verdict /
-  winners-only).
+- **Triage** — a keyboard-driven mode for rapidly sorting a filtered queue one
+  work at a time. Keys `1`–`7` set a status, `space` passes, `Z` undoes.
+- **Genre** from Wikidata, shown as chips and filterable.
+- **Stats**, winner highlighting, search, and filters (category / status /
+  genre / winners-only).
 - **Your data stays in your browser** (localStorage). Use **Export CSV** to back
   it up and **Import CSV** to restore or move it to another browser/device.
 
@@ -39,7 +42,11 @@ The finalist/winner list in [`data/hugos.json`](data/hugos.json) is generated
 from Wikipedia's four per-category pages:
 
 ```bash
-npm run scrape     # regenerates data/hugos.json
+npm run scrape     # rebuild data/hugos.json from Wikipedia
+npm run enrich     # add genre/description from Wikidata (run after scrape)
 ```
 
-`npm run` `tsx scripts/verify.ts` runs a small logic smoke test.
+`npm run verify` runs the logic smoke tests.
+
+Note: `npm run build` writes to `.next`, which is also the dev server's cache —
+restart `npm run dev` afterwards if the dev server starts 404ing its chunks.

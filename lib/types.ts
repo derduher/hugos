@@ -32,6 +32,11 @@ export interface Finalist {
   title: string;
   authors: string[];
   outcome: Outcome; // "winner" may occur more than once per category (ties)
+  // Enrichment from Wikidata (see scripts/enrich-hugos.ts). Both are sparse:
+  // genres land on ~73% of works, description on far fewer (formulaic ones
+  // that merely restate year/form/author are dropped).
+  genres?: string[]; // most-specific first
+  description?: string;
 }
 
 /**
