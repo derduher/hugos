@@ -48,5 +48,5 @@ npm run enrich     # add genre/description from Wikidata (run after scrape)
 
 `npm run verify` runs the logic smoke tests.
 
-Note: `npm run build` writes to `.next`, which is also the dev server's cache —
-restart `npm run dev` afterwards if the dev server starts 404ing its chunks.
+`npm run build` writes its cache to `.next-build` rather than `.next`, so
+building while the dev server is running does not corrupt it.
