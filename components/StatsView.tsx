@@ -12,11 +12,13 @@ function StatCard({
   read,
   total,
   sub,
+  wantToRead,
 }: {
   label: string;
   read: number;
   total: number;
   sub: string;
+  wantToRead: number;
 }) {
   return (
     <div className="rounded-xl border border-stone-200 bg-white/60 p-4 dark:border-stone-800 dark:bg-stone-900/30">
@@ -31,7 +33,12 @@ function StatCard({
         </span>
       </div>
       <ProgressBar read={read} total={total} className="mt-2" />
-      <div className="mt-2 text-xs text-stone-500 dark:text-stone-400">{sub}</div>
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-stone-500 dark:text-stone-400">
+        <span>{sub}</span>
+        <span className="rounded bg-violet-100 px-1.5 py-0.5 font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
+          Want to read: {wantToRead}
+        </span>
+      </div>
     </div>
   );
 }
@@ -50,7 +57,7 @@ export function StatsView() {
         <p className="mt-1 text-stone-500 dark:text-stone-400">
           &ldquo;Read&rdquo; counts finished works (Loved, Liked, or Didn&rsquo;t
           like). DNF and Currently&nbsp;reading are excluded.
-          {!hydrated && " Loading your saved verdicts…"}
+          {!hydrated && " Loading your saved statuses…"}
         </p>
       </div>
 
@@ -58,6 +65,7 @@ export function StatsView() {
         label="All finalists read"
         read={stats.readFinalists}
         total={stats.totalFinalists}
+        wantToRead={stats.wantToRead}
         sub={`Winners read: ${stats.readWinners} / ${stats.totalWinners} (${pct(
           stats.readWinners,
           stats.totalWinners,
@@ -75,6 +83,7 @@ export function StatsView() {
                 label={CATEGORY_LABELS[c]}
                 read={s.readFinalists}
                 total={s.totalFinalists}
+                wantToRead={s.wantToRead}
                 sub={`Winners read: ${s.readWinners} / ${s.totalWinners} (${pct(
                   s.readWinners,
                   s.totalWinners,

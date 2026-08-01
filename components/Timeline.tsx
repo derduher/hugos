@@ -30,8 +30,8 @@ export function Timeline() {
       ) {
         return false;
       }
-      const state = records[f.id]?.verdict ?? "unread";
-      if (!filters.verdicts.has(state)) return false;
+      const state = records[f.id]?.status ?? "undecided";
+      if (!filters.statuses.has(state)) return false;
       return true;
     });
     return buildTimeline(filtered);

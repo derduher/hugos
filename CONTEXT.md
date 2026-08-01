@@ -35,14 +35,23 @@ and nothing else — no implementation details, no spec, no scratch notes.
 - **Work** — a nominated title: title + author(s) + category, belonging to one
   award set.
 
-- **Verdict** — the user's ordinal opinion on a work, from best to worst:
-  **Loved → Liked → Didn't like → DNF**. The default (no record) is **Unread**.
-  There is also a **Currently reading** state. DNF means "didn't like it enough
-  to finish."
+- **Status** — the user's single mark on a work, spanning intent and verdict.
+  Two **intent** states apply before reading — **Want to read** and **Not
+  interested** — then **Currently reading**, then the **verdict** group from
+  best to worst: **Loved → Liked → Didn't like → DNF**. The default (no record)
+  is **Undecided** (also called Unread). DNF means "didn't like it enough to
+  finish."
 
-- **Read** — a work whose verdict is Loved, Liked, or Didn't like (i.e. the user
-  *finished* it). **DNF and Currently reading do NOT count as read** in progress
-  counts and filters.
+- **Read** — a work whose status is Loved, Liked, or Didn't like (i.e. the user
+  *finished* it). All other statuses — Want to read, Not interested, Currently
+  reading, DNF, and Undecided — do **NOT** count as read in progress counts and
+  filters.
 
-- **Reading record** — the user's per-work data: a verdict plus an optional
-  date read. Stored only in the user's browser.
+- **Want to read** — an intent status marking an unread work the user intends to
+  read (their to-be-read / TBR pile). Surfaced as a count in stats.
+
+- **Not interested** — an intent status marking an unread work the user does not
+  intend to read. A hide/skip signal; excluded from stats.
+
+- **Reading record** — the user's per-work data: a status plus an optional date
+  read. Stored only in the user's browser.

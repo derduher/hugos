@@ -14,6 +14,7 @@ export interface CategoryStat {
   readFinalists: number;
   totalWinners: number;
   readWinners: number;
+  wantToRead: number; // "Want to read" (TBR) count
 }
 
 export interface OverallStats {
@@ -22,6 +23,7 @@ export interface OverallStats {
   readFinalists: number;
   totalWinners: number;
   readWinners: number;
+  wantToRead: number;
 }
 
 function emptyStat(category: Category): CategoryStat {
@@ -31,6 +33,7 @@ function emptyStat(category: Category): CategoryStat {
     readFinalists: 0,
     totalWinners: 0,
     readWinners: 0,
+    wantToRead: 0,
   };
 }
 
@@ -44,9 +47,11 @@ export function computeStats(
 
   for (const f of finalists) {
     const stat = byCategory[f.category];
-    const read = isRead(records[f.id]?.verdict);
+    const status = records[f.id]?.status;
+    const read = isRead(status);
     stat.totalFinalists++;
     if (read) stat.readFinalists++;
+    if (status === "want") stat.wantToRead++;
     if (f.outcome === "winner") {
       stat.totalWinners++;
       if (read) stat.readWinners++;
@@ -59,6 +64,7 @@ export function computeStats(
     readFinalists: 0,
     totalWinners: 0,
     readWinners: 0,
+    wantToRead: 0,
   };
   for (const c of CATEGORIES) {
     const s = byCategory[c];
@@ -66,6 +72,7 @@ export function computeStats(
     overall.readFinalists += s.readFinalists;
     overall.totalWinners += s.totalWinners;
     overall.readWinners += s.readWinners;
+    overall.wantToRead += s.wantToRead;
   }
   return overall;
 }

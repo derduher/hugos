@@ -4,8 +4,8 @@
 import {
   type Finalist,
   type ReadingRecords,
-  type Verdict,
-  VERDICTS,
+  type Status,
+  STATUSES,
 } from "./types";
 
 const COLUMNS = [
@@ -15,7 +15,7 @@ const COLUMNS = [
   "targetYear",
   "title",
   "author",
-  "verdict",
+  "status",
   "dateRead",
 ] as const;
 
@@ -43,7 +43,7 @@ export function exportCsv(
       String(f.targetYear),
       f.title,
       f.authors.join("; "),
-      rec.verdict,
+      rec.status,
       rec.dateRead ?? "",
     ];
     lines.push(row.map(escapeCell).join(","));
@@ -110,10 +110,14 @@ export function importCsv(text: string, finalists: Finalist[]): ImportResult {
 
   const header = rows[0].map((h) => h.trim());
   const idIdx = header.indexOf("id");
-  const verdictIdx = header.indexOf("verdict");
+  // Accept the current "status" column, or a legacy "verdict" column.
+  const statusIdx =
+    header.indexOf("status") !== -1
+      ? header.indexOf("status")
+      : header.indexOf("verdict");
   const dateIdx = header.indexOf("dateRead");
-  if (idIdx === -1 || verdictIdx === -1) {
-    throw new Error('CSV must have "id" and "verdict" columns.');
+  if (idIdx === -1 || statusIdx === -1) {
+    throw new Error('CSV must have "id" and "status" columns.');
   }
 
   const records: ReadingRecords = {};
@@ -122,14 +126,14 @@ export function importCsv(text: string, finalists: Finalist[]): ImportResult {
   for (let r = 1; r < rows.length; r++) {
     const cells = rows[r];
     const id = (cells[idIdx] ?? "").trim();
-    const verdict = (cells[verdictIdx] ?? "").trim() as Verdict;
-    if (!validIds.has(id) || !VERDICTS.includes(verdict)) {
+    const status = (cells[statusIdx] ?? "").trim() as Status;
+    if (!validIds.has(id) || !STATUSES.includes(status)) {
       skipped++;
       continue;
     }
     const dateRead =
       dateIdx !== -1 ? (cells[dateIdx] ?? "").trim() || undefined : undefined;
-    records[id] = { verdict, dateRead };
+    records[id] = { status, dateRead };
     imported++;
   }
   return { records, imported, skipped };

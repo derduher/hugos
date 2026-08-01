@@ -7,7 +7,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import type { ReadingRecord, ReadingRecords, Verdict } from "./types";
+import type { ReadingRecord, ReadingRecords, Status } from "./types";
 
 const STORAGE_KEY = "hugo-reading-records-v1";
 
@@ -15,11 +15,28 @@ interface ReadingContextValue {
   records: ReadingRecords;
   /** true once localStorage has been read on the client (avoids SSR flash). */
   hydrated: boolean;
-  /** Set or clear a verdict. Passing null removes the record (-> Unread). */
-  setVerdict: (id: string, verdict: Verdict | null) => void;
+  /** Set or clear a status. Passing null removes the record (-> Undecided). */
+  setStatus: (id: string, status: Status | null) => void;
   setDateRead: (id: string, dateRead: string | undefined) => void;
   /** Replace the entire store (used by CSV import). */
   replaceAll: (records: ReadingRecords) => void;
+}
+
+/**
+ * Migrate legacy records: the field was renamed `verdict` -> `status`. Records
+ * saved before the rename carry a `verdict` key; map it to `status`.
+ */
+function migrate(raw: unknown): ReadingRecords {
+  if (!raw || typeof raw !== "object") return {};
+  const out: ReadingRecords = {};
+  for (const [id, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (!value || typeof value !== "object") continue;
+    const v = value as { status?: Status; verdict?: Status; dateRead?: string };
+    const status = v.status ?? v.verdict;
+    if (!status) continue;
+    out[id] = { status, dateRead: v.dateRead };
+  }
+  return out;
 }
 
 const ReadingContext = createContext<ReadingContextValue | null>(null);
@@ -32,7 +49,7 @@ export function ReadingProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) setRecords(JSON.parse(raw) as ReadingRecords);
+      if (raw) setRecords(migrate(JSON.parse(raw)));
     } catch {
       // ignore corrupt/unavailable storage
     }
@@ -49,14 +66,14 @@ export function ReadingProvider({ children }: { children: React.ReactNode }) {
     }
   }, [records, hydrated]);
 
-  const setVerdict = useCallback((id: string, verdict: Verdict | null) => {
+  const setStatus = useCallback((id: string, status: Status | null) => {
     setRecords((prev) => {
       const next = { ...prev };
-      if (verdict === null) {
+      if (status === null) {
         delete next[id];
       } else {
         const existing = next[id];
-        next[id] = { ...existing, verdict } as ReadingRecord;
+        next[id] = { ...existing, status } as ReadingRecord;
       }
       return next;
     });
@@ -78,7 +95,7 @@ export function ReadingProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ReadingContext.Provider
-      value={{ records, hydrated, setVerdict, setDateRead, replaceAll }}
+      value={{ records, hydrated, setStatus, setDateRead, replaceAll }}
     >
       {children}
     </ReadingContext.Provider>

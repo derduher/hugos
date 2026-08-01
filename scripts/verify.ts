@@ -33,28 +33,31 @@ const novelFinalist = ALL_FINALISTS.find(
   (f) => f.category === "novel" && f.outcome === "finalist",
 )!;
 const anyDnf = ALL_FINALISTS[10];
+const anyWant = ALL_FINALISTS[20];
 const recs: ReadingRecords = {
-  [novelWinner.id]: { verdict: "loved" },
-  [novelFinalist.id]: { verdict: "disliked" },
-  [anyDnf.id]: { verdict: "dnf" },
+  [novelWinner.id]: { status: "loved" },
+  [novelFinalist.id]: { status: "disliked" },
+  [anyDnf.id]: { status: "dnf" },
+  [anyWant.id]: { status: "want" },
 };
 const stats = computeStats(ALL_FINALISTS, recs);
-ok(stats.readFinalists === 2, `read excludes DNF (got ${stats.readFinalists})`);
+ok(stats.readFinalists === 2, `read excludes DNF/want (got ${stats.readFinalists})`);
 ok(stats.readWinners === 1, `winners read = 1 (got ${stats.readWinners})`);
+ok(stats.wantToRead === 1, `want-to-read counted (got ${stats.wantToRead})`);
 
 // 3. CSV round-trip: export -> import returns identical records.
 const csv = exportCsv(ALL_FINALISTS, recs);
 const back = importCsv(csv, ALL_FINALISTS);
-ok(back.imported === 3, `imported 3 (got ${back.imported})`);
+ok(back.imported === 4, `imported 4 (got ${back.imported})`);
 ok(
   JSON.stringify(back.records) === JSON.stringify(recs),
   "round-trip preserves records",
 );
 
-// 4. CSV import skips unknown ids.
+// 4. CSV import skips unknown ids, and accepts a legacy "verdict" header.
 const bad = `id,verdict\nnot-a-real-id,loved\n${novelWinner.id},liked\n`;
 const r2 = importCsv(bad, ALL_FINALISTS);
-ok(r2.imported === 1 && r2.skipped === 1, `unknown skipped (imp ${r2.imported})`);
+ok(r2.imported === 1 && r2.skipped === 1, `legacy header + skip (imp ${r2.imported})`);
 
 // 5. Search predicate: author substring, case-insensitive.
 const hits = ALL_FINALISTS.filter((f) =>

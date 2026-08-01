@@ -38,34 +38,50 @@ export interface Finalist {
  * The user's ordinal opinion on a work. Absence of a record == Unread.
  * "reading" (Currently reading) and "dnf" do NOT count as read.
  */
-export type Verdict = "loved" | "liked" | "disliked" | "dnf" | "reading";
+export type Status =
+  | "want" // Want to read (intent)
+  | "skip" // Not interested (intent)
+  | "reading" // Currently reading
+  | "loved"
+  | "liked"
+  | "disliked"
+  | "dnf";
 
-export const VERDICTS: Verdict[] = [
+// Order matters: intent group first, then verdict group. The UI draws a divider
+// between the two groups (after "skip").
+export const STATUSES: Status[] = [
+  "want",
+  "skip",
+  "reading",
   "loved",
   "liked",
   "disliked",
   "dnf",
-  "reading",
 ];
 
-export const VERDICT_LABELS: Record<Verdict, string> = {
+/** Index where the verdict group begins (used to place the UI divider). */
+export const VERDICT_GROUP_START = 2;
+
+export const STATUS_LABELS: Record<Status, string> = {
+  want: "Want to read",
+  skip: "Not interested",
+  reading: "Currently reading",
   loved: "Loved",
   liked: "Liked",
   disliked: "Didn't like",
   dnf: "DNF",
-  reading: "Currently reading",
 };
 
-/** Verdicts that count as "read" (finished) for stats and filters. */
-export const READ_VERDICTS: Verdict[] = ["loved", "liked", "disliked"];
+/** Statuses that count as "read" (finished) for stats and filters. */
+export const READ_STATUSES: Status[] = ["loved", "liked", "disliked"];
 
-export function isRead(verdict: Verdict | undefined): boolean {
-  return verdict !== undefined && READ_VERDICTS.includes(verdict);
+export function isRead(status: Status | undefined): boolean {
+  return status !== undefined && READ_STATUSES.includes(status);
 }
 
 /** The user's per-work data. Stored in localStorage, keyed by Finalist.id. */
 export interface ReadingRecord {
-  verdict: Verdict;
+  status: Status;
   dateRead?: string; // ISO date (YYYY-MM-DD), optional
 }
 

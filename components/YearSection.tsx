@@ -26,7 +26,7 @@ export function YearSection({
       for (const group of set.categories) {
         for (const f of group.finalists) {
           total++;
-          if (isRead(records[f.id]?.verdict)) read++;
+          if (isRead(records[f.id]?.status)) read++;
         }
       }
     }

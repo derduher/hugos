@@ -4,23 +4,23 @@ import {
   type Category,
   CATEGORIES,
   CATEGORY_LABELS,
-  type Verdict,
-  VERDICTS,
-  VERDICT_LABELS,
+  type Status,
+  STATUSES,
+  STATUS_LABELS,
 } from "@/lib/types";
 
-export type VerdictFilter = Verdict | "unread";
-export const VERDICT_FILTERS: VerdictFilter[] = [...VERDICTS, "unread"];
-const VERDICT_FILTER_LABELS: Record<VerdictFilter, string> = {
-  ...VERDICT_LABELS,
-  unread: "Unread",
+export type StatusFilter = Status | "undecided";
+export const STATUS_FILTERS: StatusFilter[] = [...STATUSES, "undecided"];
+const STATUS_FILTER_LABELS: Record<StatusFilter, string> = {
+  ...STATUS_LABELS,
+  undecided: "Undecided",
 };
 
 export interface Filters {
   query: string;
   categories: Set<Category>;
   winnersOnly: boolean;
-  verdicts: Set<VerdictFilter>;
+  statuses: Set<StatusFilter>;
 }
 
 export function defaultFilters(): Filters {
@@ -28,7 +28,7 @@ export function defaultFilters(): Filters {
     query: "",
     categories: new Set(CATEGORIES),
     winnersOnly: false,
-    verdicts: new Set(VERDICT_FILTERS),
+    statuses: new Set(STATUS_FILTERS),
   };
 }
 
@@ -37,7 +37,7 @@ export function filtersActive(f: Filters): boolean {
     f.query.trim() !== "" ||
     f.winnersOnly ||
     f.categories.size !== CATEGORIES.length ||
-    f.verdicts.size !== VERDICT_FILTERS.length
+    f.statuses.size !== STATUS_FILTERS.length
   );
 }
 
@@ -119,15 +119,15 @@ export function FilterBar({
 
       <div className="flex flex-wrap items-center gap-1.5">
         <span className="mr-1 text-xs font-semibold uppercase text-stone-400">
-          Verdict
+          Status
         </span>
-        {VERDICT_FILTERS.map((v) => (
+        {STATUS_FILTERS.map((s) => (
           <Chip
-            key={v}
-            label={VERDICT_FILTER_LABELS[v]}
-            active={filters.verdicts.has(v)}
+            key={s}
+            label={STATUS_FILTER_LABELS[s]}
+            active={filters.statuses.has(s)}
             onClick={() =>
-              onChange({ ...filters, verdicts: toggle(filters.verdicts, v) })
+              onChange({ ...filters, statuses: toggle(filters.statuses, s) })
             }
           />
         ))}

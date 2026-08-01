@@ -6,8 +6,9 @@ export default function HomePage() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Hugo Awards timeline</h1>
         <p className="mt-1 text-stone-500 dark:text-stone-400">
-          Browse by ceremony year and mark your verdict on each finalist. Winners
-          are highlighted; Retro Hugos appear under the year they were awarded.
+          Browse by ceremony year and mark your status on each finalist — from
+          &ldquo;Want to read&rdquo; to a verdict. Winners are highlighted; Retro
+          Hugos appear under the year they were awarded.
         </p>
       </div>
       <Timeline />
