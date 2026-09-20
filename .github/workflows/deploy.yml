@@ -1,0 +1,72 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+# Only one deploy at a time; let an in-progress deploy finish.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  id-token: write # required for OIDC role assumption
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # `output: "export"` writes the exported site into distDir, and
+      # `npm run build` points distDir at .next-build (see next.config.js).
+      - name: Build static export
+        run: npm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      # The bucket is shared with the other apps on nimblerendition.com, so
+      # every sync — and every --delete it implies — stays inside this app's
+      # own prefix. It must match `basePath` in next.config.js.
+      #
+      # Hashed assets under /_next/ are immutable; cache them hard.
+      - name: Sync immutable assets
+        run: |
+          aws s3 sync .next-build/ "s3://${{ vars.S3_BUCKET }}/hugos/" \
+            --delete \
+            --cache-control "public, max-age=31536000, immutable" \
+            --exclude "*.html" \
+            --exclude "*.txt"
+
+      # The HTML entry points must never be cached, so a deploy is picked up
+      # immediately. index.txt files are the RSC payloads that sit beside them
+      # and go stale in exactly the same way.
+      - name: Sync HTML entry points
+        run: |
+          aws s3 sync .next-build/ "s3://${{ vars.S3_BUCKET }}/hugos/" \
+            --delete \
+            --cache-control "no-cache, no-store, must-revalidate" \
+            --exclude "*" \
+            --include "*.html" \
+            --include "*.txt"
+
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --paths "/hugos/*"

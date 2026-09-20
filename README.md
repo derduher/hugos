@@ -31,10 +31,26 @@ npm run dev        # http://localhost:3000
 ## Build (static export)
 
 ```bash
-npm run build      # outputs a static site to ./out
+npm run build      # outputs a static site to ./.next-build
 ```
 
-The result is a fully static site — host `out/` anywhere, or open it locally.
+The result is a fully static site. It is built with `basePath: "/hugos"`, so it
+expects to be served from `/hugos/` — locally, `npx serve .next-build` and visit
+<http://localhost:3000/hugos/>.
+
+## Deploy
+
+Pushing to `master` deploys to <https://nimblerendition.com/hugos/> via
+[.github/workflows/deploy.yml](.github/workflows/deploy.yml): the export is
+synced into the `hugos/` prefix of the shared S3 bucket that also serves the
+other apps on that domain, then CloudFront is invalidated for `/hugos/*`.
+
+The workflow assumes an AWS role over OIDC and needs these Actions variables on
+the `Production` environment: `AWS_ROLE_ARN`, `S3_BUCKET`,
+`CLOUDFRONT_DISTRIBUTION_ID`, and optionally `AWS_REGION`.
+
+`basePath` in [next.config.js](next.config.js) and the S3 prefix in the workflow
+have to keep saying `hugos`; change one and change both.
 
 ## Data
 
@@ -48,5 +64,5 @@ npm run enrich     # add genre/description from Wikidata (run after scrape)
 
 `npm run verify` runs the logic smoke tests.
 
-`npm run build` writes its cache to `.next-build` rather than `.next`, so
-building while the dev server is running does not corrupt it.
+`npm run build` builds into `.next-build` rather than `.next`, so building
+while the dev server is running does not corrupt the dev server's cache.
